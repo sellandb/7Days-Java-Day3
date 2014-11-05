@@ -8,6 +8,9 @@ import java.util.HashMap;
 public class WordCount {
     private static final HashMap<String, Integer> counts = new HashMap<String, Integer>();
 
+    //Naive word count implementation results (100000 entries)
+    //File processing took: 1ms
+    //Page Processing took: 155256ms
     public static void main(String[] args) throws Exception {
         Long start; Long end;   //Setup timing variables
 
