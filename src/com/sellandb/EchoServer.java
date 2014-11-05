@@ -39,7 +39,9 @@ public class EchoServer {
 
                     if((n = in.read(buffer)) > 0) {
                         //Figure out the content length for the HTTP Content-Length Header
-                        int length = bodyStart.getBytes().length + buffer.length + bodyEnd.getBytes().length;
+                        //Use n as the buffer length instead of buffer.length - buffer.length reports
+                        //the size of the buffer, not the length of the content.
+                        int length = bodyStart.getBytes().length + n + bodyEnd.getBytes().length;
 
                         //Add the content length header and the extra line before the body content
                         headers += "Content-Length: " + length + "\r\n";
