@@ -30,7 +30,9 @@ public class PagesThread extends Thread{
 
     public void run(){
         //Setup variables
-        File f; InputStream i;
+        File f; InputStream i; Long start; Long end;
+
+        start = System.nanoTime();  //Start Timing
 
         //Get the file stream
         try {
@@ -39,12 +41,13 @@ public class PagesThread extends Thread{
 
             try {
 
-                //Creat the XML Parser
+                //Create the XML Parser
                 XMLInputFactory factory = XMLInputFactory.newInstance();
                 XMLStreamReader parser = factory.createXMLStreamReader(i);
 
                 Boolean inText = false;     //We will set this to true if we are in a text node
                 String data = "";           //Text from within the node will go here
+                Boolean hasData = false;
                 int count = 0;
                 //Iterate over the nodes within the parser
                 for (int event = parser.next();
@@ -68,25 +71,34 @@ public class PagesThread extends Thread{
                             }
                             break;
                         case XMLStreamConstants.CHARACTERS:
-                            if (inText)  data += parser.getText();
+                            if (inText)  {
+                                data += parser.getText();
+                                hasData = true;
+                            }
                             break;
                         case XMLStreamConstants.CDATA:
-                            if (inText)  data += parser.getText();
+                            if (inText)  {
+                                data += parser.getText();
+                                hasData = true;
+                            }
                             break;
                     } // end switch
 
                     //Check if we have accumulated text from a node
                     //If data has a positive length and we are not in text mode
                     //We have finished accumulating text for a document
-                    if(!inText && data.length() > 0) {
+                    if(!inText && hasData) {
 
-                        //Create a page
-                        Page p = new Page(data);
-                        storageQueue.add(p);
+                        try {
+                            //Create a page
+                            Page p = new Page(data);
+                            storageQueue.put(p);
 
-                        //Make sure we clear out our data
-                        data = "";
-                        count++;
+                            //Make sure we clear out our data
+                            data = "";
+                            count++;
+                            hasData = false;
+                        } catch (InterruptedException e) { System.out.println(e.getMessage()); }
                     }
                 }
                 parser.close();
@@ -99,6 +111,10 @@ public class PagesThread extends Thread{
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
         }
+
+        //Conclude timing and report
+        end = System.nanoTime();
+        System.out.println("Page processing took: " + (end - start)/1000000 + "ms");
     }
 
     private static boolean isText(String name) {

@@ -17,15 +17,15 @@ public class ConcurrentWordCount {
         Long start; Long end;   //Setup timing variables
 
         //Setup the storage queue where all pages will be queued for processing
-        BlockingQueue<Page> storageQueue = new LinkedBlockingQueue<Page>();
+        BlockingQueue<Page> storageQueue = new ArrayBlockingQueue<Page>(100);
 
         //Hashmap where the various final counts are stored
         HashMap<Integer ,HashMap<String, Integer>> counts = new HashMap<Integer ,HashMap<String, Integer>>();
 
         start = System.nanoTime();  //Start Timing
 
-        //Start the thread that will be adding the pages to the queue for processing
-        PagesThread pt = new PagesThread(100000, "/Users/sellandb/Desktop/enwiki-20140903-pages-meta-current1.xml", storageQueue);
+        //Setup the thread that will be adding the pages to the queue for processing
+        PagesThread pt = new PagesThread(1000, "/Users/sellandb/Desktop/enwiki-20140903-pages-meta-current1.xml", storageQueue);
         pt.start();
 
         //Setup the thread pool
@@ -50,10 +50,7 @@ public class ConcurrentWordCount {
         executor.shutdown();
 
         //Wait until the threadpool has shutdown
-        while(!executor.isShutdown()){
-            System.out.println("Waiting for processing to complete");
-            Thread.sleep(2500);
-        }
+        executor.awaitTermination(10L, TimeUnit.MINUTES);
 
         //Conclude timing and report
         end = System.nanoTime();
@@ -61,7 +58,7 @@ public class ConcurrentWordCount {
 
         //Output final unmerged counts
         for (int i = 0; i < threadPoolSize; i++) {
-            System.out.println(counts.get(i));
+            //System.out.println(counts.get(i));
         }
 
     }

@@ -17,7 +17,7 @@ public class WordCount {
         start = System.nanoTime();  //Start Timing
 
         //Load up the pages from the XML file
-        Iterable<Page> pages = new Pages(100000, "/Users/sellandb/Desktop/enwiki-20140903-pages-meta-current1.xml");
+        Iterable<Page> pages = new Pages(1000, "/Users/sellandb/Desktop/enwiki-20140903-pages-meta-current1.xml");
 
         //End the timing and report
         end = System.nanoTime();

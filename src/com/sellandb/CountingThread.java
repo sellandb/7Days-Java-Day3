@@ -1,5 +1,6 @@
 package com.sellandb;
 
+import java.nio.channels.InterruptedByTimeoutException;
 import java.util.HashMap;
 import java.util.concurrent.BlockingQueue;
 
@@ -20,15 +21,17 @@ public class CountingThread extends Thread{
         //pull pages from the page queue
         //A poison pill page with isFinal true will be passed once all pages
         //have been added to the queue
-        while(!(p = storageQueue.remove()).isFinal()) {
+        try {
+            while (!(p = storageQueue.take()).isFinal()) {
 
-            //Get an iterable list of the words in that text
-            Iterable<String> words = p.getText();
-            for (String word : words) {
-                //Count each word
-                countWord(word);
+                //Get an iterable list of the words in that text
+                Iterable<String> words = p.getText();
+                for (String word : words) {
+                    //Count each word
+                    countWord(word);
+                }
             }
-        }
+        } catch (InterruptedException e) { System.out.println(e.getMessage()); }
     }
     //Adds a word to the hash map
     private void countWord(String word) {

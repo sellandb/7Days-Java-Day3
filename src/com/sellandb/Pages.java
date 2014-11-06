@@ -27,7 +27,9 @@ public class Pages implements Iterable<Page> {
     public Iterator<Page> iterator() {
         //Setup variables
         CopyOnWriteArrayList<Page> pageList = new CopyOnWriteArrayList<Page>();
-        File f; InputStream i;
+        File f; InputStream i; Long start; Long end;
+
+        start = System.nanoTime();  //Start Timing
 
 
         //Get the file stream
@@ -97,7 +99,13 @@ public class Pages implements Iterable<Page> {
         } catch (FileNotFoundException e) {
             System.out.println(e.getMessage());
         }
+
+        //Conclude timing and report
+        end = System.nanoTime();
+        System.out.println("Page processing took: " + (end - start)/1000000 + "ms");
         return pageList.iterator();
+
+
     }
 
     private static boolean isText(String name) {
